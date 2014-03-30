@@ -1,0 +1,51 @@
+#!/usr/bin/python
+#
+# webreceipts job-id user title copies options pdf-file 
+#
+
+import os
+import shutil
+import sys
+
+def safeFilename(filename):
+    filename = filename.lstrip('.')
+    filename = filename.replace(os.path.sep, '-')
+    if len(filename) == 0:
+        filename = "Untitled"
+    elif len(filename) > 245:
+        filename = filename[0:245]
+    return filename
+
+
+def main(argv):
+
+	(title, options, pdfFile) = argv[0:3]
+
+	destDirectory = os.path.expanduser("~/Dropbox/ReceiptsAndRegistrations/")
+
+	# Create the Web Receipts folder if necessary.
+	try:
+		os.makedirs(destDirectory)
+	except:
+		pass
+		
+	# Build a file path pointing into the web reciepts folder
+	# using the document's title and a PDF extension.
+	title = safeFilename(title)	
+	destFile = title + ".pdf"
+	destPath = os.path.join(destDirectory, destFile)
+	
+	# If the filename we want is already in use then start
+	# appending numbers until we get a unique name.
+	i = 2
+	while (os.path.exists(destPath)):
+		destFile = title + "." + str(i) +".pdf"
+		destPath = os.path.join(destDirectory, destFile)
+		i = i + 1
+
+	# Move the file if possible otherwise copy it.
+	shutil.move(pdfFile, destPath)
+
+    
+if __name__ == "__main__":
+    main(sys.argv[1:])
